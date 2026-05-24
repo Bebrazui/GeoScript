@@ -19,7 +19,11 @@ public:
     virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) override;
 
     virtual void keyDown(cocos2d::enumKeyCodes key, double) override;
-    virtual void keyUp(cocos2d::enumKeyCodes key, double) override {}
+    virtual void keyUp(cocos2d::enumKeyCodes key, double) override;
+
+    // Called from IME hooks in main.cpp
+    void insertText(const std::string& text);
+    void deleteBackward();
 
     cocos2d::CCNode* createCustomCloseButton();
 };

@@ -13,5 +13,10 @@
 	"description": "GeoScript - a scripting language that compiles to GD triggers",
 	"dependencies": {
 		"geode.node-ids": ">=v1.23.3"
+	},
+	"resources": {
+		"files": [
+			"resources/GoogleSans-Regular.ttf"
+		]
 	}
 }
