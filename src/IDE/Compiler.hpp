@@ -1,4 +1,3 @@
-#pragma once
 #include <Geode/Geode.hpp>
 #include <string>
 #include <vector>
@@ -276,10 +275,10 @@ public:
 private:
     void parseBlock(EventBlockNode* evNode) {
         while (m_currentToken.token_type != GeoTokenType::RBrace && m_currentToken.token_type != GeoTokenType::EndOfFile) {
-            if (m_currentToken.token_type == GeoTokenType::KeywordMove || 
-                m_currentToken.token_type == GeoTokenType::KeywordPulse || 
+            if (m_currentToken.token_type == GeoTokenType::KeywordMove ||
+                m_currentToken.token_type == GeoTokenType::KeywordPulse ||
                 m_currentToken.token_type == GeoTokenType::KeywordWait) {
-                
+
                 std::string cmdName = m_currentToken.value;
                 consume();
 
@@ -379,7 +378,7 @@ public:
             if (decl->explicitId != -1) {
                 // Защита от дурака: проверяем, не конфликтует ли назначенный ID
                 if (m_usedIDs.find(decl->explicitId) != m_usedIDs.end()) {
-                    m_logs.push_back("[Ошибка]: Конфликт! Группа ID " + std::to_string(decl->explicitId) + 
+                    m_logs.push_back("[Ошибка]: Конфликт! Группа ID " + std::to_string(decl->explicitId) +
                                      " уже физически занята на уровне. Выберите другой ID.");
                     return false;
                 }
@@ -434,12 +433,12 @@ public:
                         // Генерация Move-триггера через строку сохранения GD
                         // ID Move-триггера = 901
                         std::stringstream ss;
-                        ss << "1,901,2," << triggerX << ",3," << startY 
+                        ss << "1,901,2," << triggerX << ",3," << startY
                            << ",51," << targetID  // Target Group
                            << ",28," << moveX     // Move X
                            << ",29," << moveY     // Move Y
                            << ",10," << duration; // Move Time
-                        
+
                         if (delayAccumulator > 0.0f) {
                             // Если была задержка wait(), генерируем Spawn триггер
                             ss << ",104,1"; // Spawn Triggered flag

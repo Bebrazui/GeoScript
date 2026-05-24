@@ -1,11 +1,10 @@
-#pragma once
 #include <Geode/Geode.hpp>
 #include <vector>
 #include <string>
 
 using namespace geode::prelude;
 
-class CustomTextEditor : public CCNode, public CCKeyboardDelegate, public TextInputDelegate {
+class CustomTextEditor : public cocos2d::CCLayer, public CCKeyboardDelegate, public TextInputDelegate {
 protected:
     std::vector<std::string> m_lines;
     int m_cursorLine = 0;
@@ -14,6 +13,7 @@ protected:
     float m_lineHeight = 16.f;
     float m_fontSize = 0.5f;
     std::vector<CCLabelBMFont*> m_lineLabels;
+    std::vector<CCLabelBMFont*> m_lineNumberLabels;
     CCNode* m_cursorNode;
     CCTextInputNode* m_input;
 

@@ -116,6 +116,9 @@ bool GeoIDE::init() {
 
     this->setTouchEnabled(true);
     this->setKeypadEnabled(true);
+    this->setKeyboardEnabled(true);
+    auto keyboard = cocos2d::CCDirector::sharedDirector()->getKeyboardDispatcher();
+    keyboard->addDelegate(dynamic_cast<cocos2d::CCKeyboardDelegate*>(this));
     CCTouchDispatcher::get()->addTargetedDelegate(this, -128, true);
 
     auto menu = CCMenu::create();
@@ -204,9 +207,10 @@ bool GeoIDE::init() {
 }
 
 void GeoIDE::keyDown(cocos2d::enumKeyCodes key, double) {
-    if (key == cocos2d::KEY_Enter) {
-        m_editor->onEnterPressed();
-    }
+    geode::log::info("GeoIDE::keyDown key: {}", (int)key);
+
+    // Временно попробуем передавать вообще всё, что приходит в GeoIDE, в редактор
+    m_editor->keyDown(key, 0.0);
 }
 
 cocos2d::CCNode* GeoIDE::createCustomCloseButton() {
