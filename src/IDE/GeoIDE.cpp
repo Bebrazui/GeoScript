@@ -1,6 +1,7 @@
 #include "GeoIDE.hpp"
 #include "Compiler.hpp"
 #include "Editor/CustomTextEditor.hpp"
+#include <fstream>
 
 using namespace geode::prelude;
 
@@ -165,6 +166,15 @@ bool GeoIDE::init() {
     m_editor->setPosition({editorX, editorY});
     this->addChild(m_editor, 2);
 
+    // Load saved code
+    auto path = geode::Mod::get()->getSaveDir() / "script.gs";
+    std::ifstream f(path);
+    if (f.is_open()) {
+        std::string code((std::istreambuf_iterator<char>(f)),
+                          std::istreambuf_iterator<char>());
+        if (!code.empty()) m_editor->setText(code);
+    }
+
     auto consoleBg = CCDrawNode::create();
     consoleBg->drawPolygon(
         new CCPoint[4]{{0, 0}, {editorWidth, 0}, {editorWidth, consoleHeight}, {0, consoleHeight}},
@@ -286,5 +296,10 @@ bool GeoIDE::ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event) {
 }
 
 void GeoIDE::onCloseBtn(cocos2d::CCObject*) {
+    // Save code to file before closing
+    std::string code = m_editor->getText();
+    auto path = geode::Mod::get()->getSaveDir() / "script.gs";
+    std::ofstream f(path);
+    if (f.is_open()) f << code;
     this->removeFromParentAndCleanup(true);
 }

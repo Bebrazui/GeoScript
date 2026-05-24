@@ -1,6 +1,7 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
 #include <Geode/modify/CCIMEDispatcher.hpp>
+#include <unordered_set>
 #include "IDE/IDEButton.hpp"
 #include "IDE/GeoIDE.hpp"
 
@@ -27,9 +28,37 @@ static GeoIDE* findIDE() {
 class $modify(MyCCIMEDispatcher, CCIMEDispatcher) {
     void dispatchInsertText(const char* text, int len, enumKeyCodes key) {
         if (auto* ide = findIDE()) {
-            // Forward text directly to the editor
-            ide->insertText(std::string(text, len));
-            return; // don't pass to game inputs
+            // Use the key parameter to reject navigation/special keys
+            // that GD sends as text (arrows send 'a','b','c','d' etc.)
+            static const std::unordered_set<int> BLOCKED_KEYS = {
+                (int)KEY_Left,  (int)KEY_Right, (int)KEY_Up,    (int)KEY_Down,
+                (int)KEY_Home,  (int)KEY_End,   (int)KEY_PageUp,(int)KEY_PageDown,
+                (int)KEY_Enter, (int)KEY_NumEnter,
+                (int)KEY_Backspace, (int)KEY_Delete,
+                (int)KEY_Escape, (int)KEY_Tab,
+                (int)KEY_Shift, (int)KEY_LeftShift,  (int)KEY_RightShift,
+                (int)KEY_Control,(int)KEY_LeftControl,(int)KEY_RightContol,
+                (int)KEY_Alt,   (int)KEY_F1, (int)KEY_F2, (int)KEY_F3,
+                (int)KEY_F4,    (int)KEY_F5, (int)KEY_F6, (int)KEY_F7,
+                (int)KEY_F8,    (int)KEY_F9, (int)KEY_F10,(int)KEY_F11,(int)KEY_F12,
+            };
+            if (BLOCKED_KEYS.count((int)key)) return;
+
+            // Also filter raw control bytes just in case
+            std::string s(text, len);
+            std::string filtered;
+            for (size_t i = 0; i < s.size(); ) {
+                unsigned char ch = (unsigned char)s[i];
+                int sl = (ch >= 0xF0) ? 4 : (ch >= 0xE0) ? 3 : (ch >= 0xC0) ? 2 : 1;
+                if ((ch < 0x20 && ch != '\t') || ch == 0x7F) { i += sl; continue; }
+                filtered += s.substr(i, sl);
+                i += sl;
+            }
+            if (!filtered.empty()) {
+                geode::log::debug("IME insert: key=0x{:X} text='{}'", (int)key, filtered);
+                ide->insertText(filtered);
+            }
+            return;
         }
         CCIMEDispatcher::dispatchInsertText(text, len, key);
     }
